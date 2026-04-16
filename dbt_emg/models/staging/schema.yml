@@ -1,0 +1,73 @@
+version: 2
+
+sources:
+  - name: raw
+    description: Raw EMG signal data loaded from local CSV ingestion.
+    schema: raw
+    tables:
+      - name: emg_signals
+        description: Source table containing one EMG sample per row across eight channels.
+        columns:
+          - name: subject_id
+            tests:
+              - not_null
+          - name: session_id
+            tests:
+              - not_null
+          - name: timestamp
+            tests:
+              - not_null
+          - name: gesture_label
+            tests:
+              - not_null
+              - accepted_values:
+                  values: ["open_hand", "grip", "pinch", "rest"]
+
+models:
+  - name: stg_emg_raw
+    description: Clean staging view that standardizes EMG raw field names and normalizes gesture labels.
+    columns:
+      - name: subject_id
+        description: Unique subject identifier from the collection device or study system.
+        tests:
+          - not_null
+      - name: session_id
+        description: Session identifier grouping samples captured in the same recording window.
+        tests:
+          - not_null
+      - name: recorded_at
+        description: Timestamp at which the EMG sample was recorded.
+        tests:
+          - not_null
+      - name: emg_channel_1
+        tests:
+          - not_null
+      - name: emg_channel_2
+        tests:
+          - not_null
+      - name: emg_channel_3
+        tests:
+          - not_null
+      - name: emg_channel_4
+        tests:
+          - not_null
+      - name: emg_channel_5
+        tests:
+          - not_null
+      - name: emg_channel_6
+        tests:
+          - not_null
+      - name: emg_channel_7
+        tests:
+          - not_null
+      - name: emg_channel_8
+        tests:
+          - not_null
+      - name: gesture_label
+        description: Normalized gesture class label for the EMG sample.
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["open_hand", "grip", "pinch", "rest"]
+      - name: ingested_at
+        description: Timestamp when the raw row was ingested into PostgreSQL.

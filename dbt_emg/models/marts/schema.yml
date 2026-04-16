@@ -1,0 +1,42 @@
+version: 2
+
+models:
+  - name: mart_emg_session_summary
+    description: Session-level summary of EMG signal volume and intensity for each subject recording session.
+    columns:
+      - name: subject_id
+        tests:
+          - not_null
+      - name: session_id
+        tests:
+          - not_null
+      - name: row_count
+        tests:
+          - not_null
+      - name: avg_signal
+        tests:
+          - not_null
+      - name: max_signal
+        tests:
+          - not_null
+      - name: distinct_gestures
+        tests:
+          - not_null
+
+  - name: mart_emg_gesture_distribution
+    description: Gesture-level distribution showing the share of EMG samples and subject coverage by label.
+    columns:
+      - name: gesture_label
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["open_hand", "grip", "pinch", "rest"]
+      - name: sample_count
+        tests:
+          - not_null
+      - name: subject_count
+        tests:
+          - not_null
+      - name: proportion_of_total
+        tests:
+          - not_null

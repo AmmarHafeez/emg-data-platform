@@ -1,0 +1,114 @@
+name: emg-data-platform
+
+x-airflow-common-env: &airflow-common-env
+  AIRFLOW__CORE__EXECUTOR: LocalExecutor
+  AIRFLOW__CORE__FERNET_KEY: ""
+  AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+  AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "false"
+  AIRFLOW__CORE__DAGS_FOLDER: /opt/emg-data-platform/airflow/dags
+  AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: "true"
+  AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://${POSTGRES_USER:-emg_admin}:${POSTGRES_PASSWORD:-emg_admin}@postgres:5432/${POSTGRES_DB:-emg_platform}"
+  _AIRFLOW_WWW_USER_USERNAME: ${AIRFLOW_ADMIN_USERNAME:-airflow}
+  _AIRFLOW_WWW_USER_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD:-airflow}
+  PYTHONPATH: /opt/emg-data-platform
+  EMG_PROJECT_ROOT: /opt/emg-data-platform
+  EMG_INGEST_SCRIPT: /opt/emg-data-platform/src/ingest/load_raw_csv.py
+  EMG_RAW_CSV_PATH: /opt/emg-data-platform/data/raw/sample_emg.csv
+  EMG_DBT_PROJECT_DIR: /opt/emg-data-platform/dbt_emg
+  DBT_PROFILES_DIR: /opt/emg-data-platform/dbt_emg
+  AIRFLOW_POSTGRES_HOST: postgres
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: ${POSTGRES_DB:-emg_platform}
+  POSTGRES_USER: ${POSTGRES_USER:-emg_admin}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-emg_admin}
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+
+x-airflow-common: &airflow-common
+  build:
+    context: .
+    dockerfile: Dockerfile
+    args:
+      AIRFLOW_BASE_IMAGE: ${AIRFLOW_BASE_IMAGE:-apache/airflow:3.2.0-python3.11}
+  image: ${AIRFLOW_IMAGE_NAME:-emg-data-platform-airflow:local}
+  restart: unless-stopped
+  user: "${AIRFLOW_UID:-50000}:0"
+  working_dir: /opt/emg-data-platform
+  environment: *airflow-common-env
+  volumes:
+    - ./:/opt/emg-data-platform
+    - ./airflow/logs:/opt/airflow/logs
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-emg_platform}
+      POSTGRES_USER: ${POSTGRES_USER:-emg_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-emg_admin}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - "postgres_data:/var/lib/postgresql"
+      - "./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-emg_admin} -d ${POSTGRES_DB:-emg_platform}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  airflow-init:
+    <<: *airflow-common
+    restart: "no"
+    command: >-
+      bash -lc "set -e;
+      airflow db migrate;
+      airflow users create --username ${AIRFLOW_ADMIN_USERNAME:-airflow} --password ${AIRFLOW_ADMIN_PASSWORD:-airflow} --firstname Airflow --lastname Admin --role Admin --email airflow@example.com || true"
+
+  airflow-api-server:
+    <<: *airflow-common
+    command: api-server
+    depends_on:
+      postgres:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+    ports:
+      - "${AIRFLOW_PORT:-8080}:8080"
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    depends_on:
+      postgres:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-dag-processor:
+    <<: *airflow-common
+    command: dag-processor
+    depends_on:
+      postgres:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-cli:
+    <<: *airflow-common
+    profiles: ["tools"]
+    command: bash
+    depends_on:
+      postgres:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+    stdin_open: true
+    tty: true
+
+volumes:
+  postgres_data:

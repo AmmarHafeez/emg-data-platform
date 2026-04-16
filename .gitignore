@@ -1,0 +1,12 @@
+.env
+.deps/
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.pycache_tmp/
+airflow/logs/
+dbt_emg/dbt_packages/
+dbt_emg/target/
+dbt_emg/.user.yml
+dbt_emg/logs/
