@@ -70,7 +70,6 @@ EMG data is a strong data engineering example because it behaves like real telem
 - bad timestamps or null fields can break downstream analysis
 - the same data benefits from both detailed raw storage and aggregated analytical models
 
-It is a more technically interesting portfolio domain than a generic ecommerce CSV, while still being easy to explain in interviews.
 
 ## Architecture
 
