@@ -99,7 +99,7 @@ flowchart LR
 - `marts.mart_emg_gesture_distribution`
   Aggregates the dataset to one row per gesture label for quick distribution analysis.
 
-This separation keeps ingestion logic simple, dbt models readable, and recruiter review fast.
+This separation keeps ingestion logic simple, dbt models readable, and the pipeline easy to inspect.
 
 ## Tech stack
 
@@ -154,7 +154,7 @@ dbt tests include:
 
 ## Airflow orchestration
 
-The Airflow DAG runs the project in a simple, recruiter-friendly order:
+The Airflow DAG runs the project in a clear and reproducible order:
 
 1. Check PostgreSQL readiness
 2. Run the Python ingestion script
@@ -242,7 +242,7 @@ This mart aggregates the dataset by gesture label and reports total samples, con
 ![Gesture distribution mart](docs/mart_emg_gesture_distribution.png)
 
 
-## Sample SQL queries recruiters can run
+## Sample SQL queries
 
 Inspect the session-level summary:
 
@@ -285,14 +285,14 @@ group by 1, 2
 order by session_start;
 ```
 
-## Interview talking points
+## Implementation notes
 
 - The project uses the standard analytics engineering structure of `raw -> staging -> marts`, which makes lineage and responsibilities easy to explain.
 - The ingestion layer is intentionally defensive: it validates schema, normalizes text and timestamps, rejects bad records, and logs what happened.
 - The project is deterministic for demos. Re-running the pipeline refreshes the sample raw data instead of duplicating it.
 - EMG is a useful proxy for biosignal, IoT, and telemetry pipelines because it combines timestamps, repeated sessions, multiple sensor channels, and downstream analytical aggregation.
 
-## What this proves to employers
+## What this project demonstrates
 
 This project demonstrates the ability to:
 
