@@ -12,6 +12,38 @@ The project is intentionally small enough to run on a laptop, but it still demon
 - repeatable orchestration with Airflow
 - local reproducibility with Docker Compose
 
+## Quickstart
+
+```powershell
+# 1. Clone the repository
+git clone https://github.com/AmmarHafeez/emg-data-platform.git
+cd emg-data-platform
+
+# 2. Create environment file
+Copy-Item .env.example .env
+
+# 3. Start PostgreSQL
+docker compose up -d postgres
+
+# 4. Create and activate Python virtual environment
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+# 5. Install dependencies
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+pip install dbt-postgres
+
+# 6. Load raw EMG data
+python src\ingest\load_raw_csv.py
+
+# 7. Run dbt models and tests
+cd dbt_emg
+dbt seed
+dbt run
+dbt test
+cd ..
+
 ## Why this project matters for Data Engineering
 
 EMG data is a strong data engineering example because it behaves like real telemetry:
