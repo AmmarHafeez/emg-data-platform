@@ -47,6 +47,20 @@ dbt test
 cd ..
 ```
 
+Expected result:
+
+- raw EMG data loaded into PostgreSQL
+- dbt staging and mart models created
+- 29 dbt data-quality tests passing```
+
+## Results
+
+- Loaded 300 EMG sensor records into PostgreSQL
+- Built 1 dbt staging model and 2 dbt mart models
+- Created session-level and gesture-level analytics tables
+- Passed 29 dbt data-quality tests
+- Packaged the project with Docker Compose for local reproducibility
+
 ## Why this project matters for Data Engineering
 
 EMG data is a strong data engineering example because it behaves like real telemetry:
