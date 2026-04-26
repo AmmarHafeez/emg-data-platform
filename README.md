@@ -43,6 +43,7 @@ dbt seed
 dbt run
 dbt test
 cd ..
+```
 
 ## Why this project matters for Data Engineering
 
