@@ -1,12 +1,12 @@
 # emg-data-platform
 
-**Status:** Completed portfolio MVP — ingestion, dbt models, tests, and sample outputs are working locally.
+**Status:** Completed technical MVP — ingestion, dbt models, tests, and sample outputs are working locally.
 
 ## Project overview
 
-`emg-data-platform` is a local-first data engineering portfolio project built around electromyography (EMG) biosignal data. It shows how multi-channel time-series sensor records can be validated in Python, loaded into PostgreSQL, standardized with dbt, and orchestrated with Airflow in a reproducible Docker Compose environment.
+`emg-data-platform` is a local-first data engineering project built around electromyography (EMG) biosignal data. It shows how multi-channel time-series sensor records can be validated in Python, loaded into PostgreSQL, standardized with dbt, and orchestrated with Airflow in a reproducible Docker Compose environment.
 
-The project is intentionally small enough to run on a laptop, but it still demonstrates the core patterns employers expect in production data work:
+The project is intentionally small enough to run on a laptop, but it still demonstrates core patterns used in production data work:
 
 - validated raw ingestion
 - a clear `raw -> staging -> marts` modeling flow
@@ -304,3 +304,5 @@ This project demonstrates the ability to:
 - work with biosignal and time-series data, where timestamp quality and schema consistency matter
 
 In short, it shows practical end-to-end data engineering skills on a domain that is more technically interesting than a generic CSV-to-dashboard demo.
+
+
